@@ -1,0 +1,65 @@
+==== aov with Error(block/gen/trt) ====
+
+Error: block
+          Df Sum Sq Mean Sq F value Pr(>F)
+Residuals  3  989.5   329.8               
+
+Error: block:gen
+          Df Sum Sq Mean Sq F value Pr(>F)  
+gen        1   3639    3639   16.86 0.0262 *
+Residuals  3    648     216                 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Error: block:gen:trt
+             Df Sum Sq Mean Sq F value   Pr(>F)    
+dust          4  987.6  246.90  12.587 2.65e-07 ***
+dry           1  117.3  117.31   5.980   0.0178 *  
+gen:dust      4  146.7   36.67   1.869   0.1292    
+gen:dry       1   91.5   91.51   4.665   0.0352 *  
+dust:dry      4   46.2   11.54   0.588   0.6725    
+gen:dust:dry  4  148.1   37.02   1.887   0.1260    
+Residuals    54 1059.2   19.62                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Error: Within
+                  Df Sum Sq Mean Sq F value   Pr(>F)    
+inoc               1  965.3   965.3  62.725 6.71e-11 ***
+gen:inoc           1    0.3     0.3   0.020 0.888290    
+dust:inoc          4  379.8    94.9   6.170 0.000316 ***
+dry:inoc           1   68.9    68.9   4.477 0.038503 *  
+gen:dust:inoc      4  119.4    29.9   1.940 0.115452    
+gen:dry:inoc       1    3.9     3.9   0.254 0.616240    
+dust:dry:inoc      4   25.8     6.5   0.419 0.794069    
+gen:dust:dry:inoc  4    7.7     1.9   0.125 0.972946    
+Residuals         60  923.4    15.4                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+==== nlme::lme, REML, random intercepts for block, whole plot, subplot ====
+            Variance     StdDev  
+block =     pdLogChol(1)         
+(Intercept)  2.849168    1.687948
+gen =       pdLogChol(1)         
+(Intercept)  9.812873    3.132551
+trt =       pdLogChol(1)         
+(Intercept)  2.112963    1.453604
+Residual    15.389583    3.922956
+                  numDF denDF   F-value p-value
+(Intercept)           1    60 2185.2683  <.0001
+gen                   1     3   16.8551  0.0262
+dust                  4    54   12.5868  <.0001
+dry                   1    54    5.9803  0.0178
+inoc                  1    60   62.7247  <.0001
+gen:dust              4    54    1.8692  0.1292
+gen:dry               1    54    4.6650  0.0352
+dust:dry              4    54    0.5883  0.6725
+gen:inoc              1    60    0.0199  0.8883
+dust:inoc             4    60    6.1696  0.0003
+dry:inoc              1    60    4.4775  0.0385
+gen:dust:dry          4    54    1.8874  0.1260
+gen:dust:inoc         4    60    1.9398  0.1155
+gen:dry:inoc          1    60    0.2538  0.6162
+dust:dry:inoc         4    60    0.4193  0.7941
+gen:dust:dry:inoc     4    60    0.1249  0.9729

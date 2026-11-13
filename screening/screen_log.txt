@@ -1,0 +1,102 @@
+chakravertti.factorial       identity FAIL n=405 df=240 norm=0.000 var=0.000 (worst date:gen, ratio 8020.2) trend=0.000 outl=0.000 nonadd=0.132 spatial=n/a
+                             stratum block:date:gen: df=20 norm=0.706 var=0.680 outl=0.419 trend=0.241
+                             stratum block:date: df=8 norm=0.179 var=0.464 outl=0.649 trend=0.231
+                             fails=['residual:normal', 'residual:var_family', 'residual:trend', 'residual:outlier'] warns=[]
+chakravertti.factorial       sqrt     FAIL n=405 df=240 norm=0.000 var=0.000 (worst date, ratio 10.0) trend=0.059 outl=0.000 nonadd=0.0 spatial=n/a
+                             stratum block:date:gen: df=20 norm=0.001 var=0.011 outl=0.001 trend=0.002
+                             stratum block:date: df=8 norm=0.787 var=0.252 outl=0.516 trend=0.217
+                             fails=['residual:normal', 'residual:var_family', 'residual:outlier', 'residual:nonadditive', 'block:date:gen:normal', 'block:date:gen:trend', 'block:date:gen:outlier'] warns=['block:date:gen:var_family']
+chakravertti.factorial       log      FAIL n=405 df=240 norm=0.000 var=0.000 (worst date, ratio 145.0) trend=0.000 outl=0.000 nonadd=0.0 spatial=n/a
+                             stratum block:date:gen: df=20 norm=0.000 var=0.000 outl=0.000 trend=0.000
+                             stratum block:date: df=8 norm=0.165 var=0.532 outl=0.004 trend=0.149
+                             fails=['residual:normal', 'residual:var_family', 'residual:trend', 'residual:outlier', 'residual:nonadditive', 'block:date:gen:normal', 'block:date:gen:var_family', 'block:date:gen:trend', 'block:date:gen:outlier', 'block:date:outlier'] warns=[]
+goulden.splitsplit           identity PASS n=160 df= 60 norm=0.485 var=0.068 (worst block, ratio 3.9) trend=0.955 outl=0.165 nonadd=0.298 spatial=0.7916041979010495
+                             stratum block:gen:trt: df=54 norm=0.599 var=0.239 outl=0.506 trend=0.930
+                             stratum block:gen: df=3 too few df to test
+                             Box-Cox lambda=1.85 CI=[1.05, 2.0]
+goulden.splitsplit           sqrt     PASS n=160 df= 60 norm=0.172 var=0.063 (worst block, ratio 4.1) trend=0.594 outl=0.090 nonadd=0.527 spatial=0.7156421789105447
+                             stratum block:gen:trt: df=54 norm=0.698 var=0.304 outl=0.325 trend=0.547
+                             stratum block:gen: df=3 too few df to test
+goulden.splitsplit           log      WARN n=160 df= 60 norm=0.046 var=0.068 (worst block, ratio 4.4) trend=0.350 outl=0.039 nonadd=0.822 spatial=0.63968015992004
+                             stratum block:gen:trt: df=54 norm=0.481 var=0.397 outl=0.209 trend=0.339
+                             stratum block:gen: df=3 too few df to test
+                             fails=[] warns=['residual:normal', 'residual:outlier']
+gregory.cotton               identity FAIL n=144 df= 71 norm=0.628 var=0.009 (worst date, ratio 2.9) trend=0.441 outl=0.725 nonadd=0.0 spatial=n/a
+                             fails=['residual:var_family', 'residual:nonadditive'] warns=[]
+                             Box-Cox lambda=0.15 CI=[0.0, 0.25]
+gregory.cotton               sqrt     FAIL n=144 df= 71 norm=0.318 var=0.040 (worst date, ratio 3.0) trend=0.192 outl=0.715 nonadd=0.0 spatial=n/a
+                             fails=['residual:nonadditive'] warns=['residual:var_family']
+gregory.cotton               log      PASS n=144 df= 71 norm=0.467 var=0.131 (worst nitrogen:water, ratio 4.4) trend=0.059 outl=0.735 nonadd=0.721 spatial=n/a
+gomez.fractionalfactorial    identity PASS n= 64 df= 39 norm=0.590 var=0.989 (worst A:B, ratio 2.3) trend=0.907 outl=0.635 nonadd=0.975 spatial=0.928535732133933
+                             stratum rep:block: df=2 too few df to test
+                             Box-Cox lambda=0.85 CI=[-0.55, 2.0]
+gomez.fractionalfactorial    sqrt     PASS n= 64 df= 39 norm=0.569 var=0.991 (worst A:E, ratio 2.2) trend=0.695 outl=0.667 nonadd=0.559 spatial=0.928535732133933
+                             stratum rep:block: df=2 too few df to test
+gomez.fractionalfactorial    log      PASS n= 64 df= 39 norm=0.614 var=0.987 (worst A:E, ratio 2.0) trend=0.491 outl=0.722 nonadd=0.245 spatial=0.8145927036481759
+                             stratum rep:block: df=2 too few df to test
+chinloy.fractionalfactorial  identity WARN n= 81 df= 30 norm=0.659 var=0.614 (worst m, ratio 3.3) trend=0.045 outl=0.072 nonadd=0.09 spatial=0.014992503748125937
+                             fails=[] warns=['residual:trend', 'residual:spatial']
+                             Box-Cox lambda=2.0 CI=[1.45, 2.0]
+chinloy.fractionalfactorial  sqrt     WARN n= 81 df= 30 norm=0.721 var=0.550 (worst m, ratio 3.6) trend=0.042 outl=0.189 nonadd=0.013 spatial=0.03298350824587706
+                             fails=[] warns=['residual:trend', 'residual:spatial', 'residual:nonadditive']
+chinloy.fractionalfactorial  log      FAIL n= 81 df= 30 norm=0.906 var=0.329 (worst n:m, ratio 7.9) trend=0.043 outl=0.354 nonadd=0.001 spatial=0.10194902548725637
+                             fails=['residual:nonadditive'] warns=['residual:trend']
+cochran.factorial            identity PASS n= 32 df= 14 norm=0.329 var=0.349 (worst N:P, ratio 4.5) trend=0.345 outl=0.631 nonadd=0.452 spatial=n/a
+                             stratum rep:block: df=2 too few df to test
+                             Box-Cox lambda=1.75 CI=[-0.75, 2.0]
+cochran.factorial            sqrt     PASS n= 32 df= 14 norm=0.430 var=0.366 (worst N:P, ratio 4.9) trend=0.217 outl=0.621 nonadd=0.505 spatial=n/a
+                             stratum rep:block: df=2 too few df to test
+cochran.factorial            log      PASS n= 32 df= 14 norm=0.467 var=0.384 (worst N:P, ratio 5.3) trend=0.187 outl=0.622 nonadd=0.569 spatial=n/a
+                             stratum rep:block: df=2 too few df to test
+besag.triticale              identity FAIL n= 54 df= 34 norm=0.606 var=0.494 (worst gen:regulator, ratio 19.9) trend=0.224 outl=0.326 nonadd=0.565 spatial=0.0009995002498750624
+                             fails=['residual:spatial'] warns=[]
+                             Box-Cox lambda=1.0 CI=[0.15, 1.9]
+besag.triticale              sqrt     FAIL n= 54 df= 34 norm=0.700 var=0.350 (worst gen:regulator, ratio 29.7) trend=0.072 outl=0.252 nonadd=0.967 spatial=0.0009995002498750624
+                             fails=['residual:spatial'] warns=[]
+besag.triticale              log      FAIL n= 54 df= 34 norm=0.389 var=0.259 (worst gen:regulator, ratio 41.2) trend=0.030 outl=0.049 nonadd=0.622 spatial=0.0009995002498750624
+                             fails=['residual:spatial'] warns=['residual:trend', 'residual:outlier']
+harvey.lsmeans               identity PASS n= 65 df= 52 norm=0.615 var=0.363 (worst line, ratio 3.6) trend=0.020 outl=0.797 nonadd=0.074 spatial=n/a
+                             fails=[] warns=['residual:trend']
+                             Box-Cox lambda=2.0 CI=[1.1, 2.0]
+harvey.lsmeans               sqrt     WARN n= 65 df= 52 norm=0.483 var=0.359 (worst line, ratio 3.7) trend=0.021 outl=0.452 nonadd=0.041 spatial=n/a
+                             fails=[] warns=['residual:trend', 'residual:nonadditive']
+harvey.lsmeans               log      WARN n= 65 df= 52 norm=0.302 var=0.363 (worst line, ratio 3.9) trend=0.016 outl=0.162 nonadd=0.02 spatial=n/a
+                             fails=[] warns=['residual:trend', 'residual:nonadditive']
+gomez.splitsplit             identity PASS n=135 df= 60 norm=0.922 var=0.085 (worst rep, ratio 2.2) trend=0.063 outl=0.477 nonadd=0.693 spatial=0.862568715642179
+                             stratum rep:nitro:management: df=20 norm=0.208 var=0.846 outl=0.992 trend=0.283
+                             stratum rep:nitro: df=8 norm=0.505 var=0.530 outl=0.286 trend=0.339
+                             Box-Cox lambda=1.7 CI=[1.25, 2.0]
+gomez.splitsplit             sqrt     FAIL n=135 df= 60 norm=0.796 var=0.036 (worst rep, ratio 2.5) trend=0.004 outl=0.430 nonadd=0.199 spatial=0.769615192403798
+                             stratum rep:nitro:management: df=20 norm=0.130 var=0.848 outl=0.887 trend=0.477
+                             stratum rep:nitro: df=8 norm=0.491 var=0.604 outl=0.186 trend=0.581
+                             fails=['residual:trend'] warns=['residual:var_family']
+gomez.splitsplit             log      FAIL n=135 df= 60 norm=0.692 var=0.022 (worst nitro:gen, ratio 15.7) trend=0.000 outl=0.472 nonadd=0.018 spatial=0.6766616691654173
+                             stratum rep:nitro:management: df=20 norm=0.299 var=0.821 outl=0.561 trend=0.946
+                             stratum rep:nitro: df=8 norm=0.465 var=0.712 outl=0.140 trend=0.637
+                             fails=['residual:trend'] warns=['residual:var_family', 'residual:nonadditive']
+gomez.stripsplitplot         identity PASS n=108 df= 36 norm=0.750 var=0.708 (worst nitro:planting, ratio 2.2) trend=0.462 outl=0.207 nonadd=0.838 spatial=0.7006496751624188
+                             Box-Cox lambda=1.1 CI=[0.75, 1.45]
+gomez.stripsplitplot         sqrt     PASS n=108 df= 36 norm=0.274 var=0.216 (worst nitro:planting, ratio 3.8) trend=0.049 outl=0.115 nonadd=0.231 spatial=0.5007496251874063
+                             fails=[] warns=['residual:trend']
+gomez.stripsplitplot         log      FAIL n=108 df= 36 norm=0.084 var=0.107 (worst nitro:planting, ratio 4.1) trend=0.002 outl=0.135 nonadd=0.032 spatial=0.2868565717141429
+                             fails=['residual:trend'] warns=['residual:nonadditive']
+cox.stripsplit               identity PASS n= 96 df= 24 norm=0.198 var=0.133 (worst soil:calcium, ratio 4.4) trend=0.477 outl=0.211 nonadd=0.812 spatial=n/a
+                             Box-Cox lambda=-1.4 CI=[-2.0, 0.0]
+cox.stripsplit               sqrt     PASS n= 96 df= 24 norm=0.282 var=0.124 (worst soil:calcium, ratio 4.2) trend=0.559 outl=0.212 nonadd=0.607 spatial=n/a
+cox.stripsplit               log      PASS n= 96 df= 24 norm=0.351 var=0.124 (worst soil:calcium, ratio 4.1) trend=0.682 outl=0.218 nonadd=0.429 spatial=n/a
+mead.cowpea.maize            identity PASS n= 72 df= 46 norm=0.335 var=0.076 (worst nitro, ratio 9.3) trend=0.906 outl=0.256 nonadd=0.462 spatial=n/a
+                             Box-Cox lambda=1.45 CI=[0.7, 2.0]
+mead.cowpea.maize            sqrt     FAIL n= 72 df= 46 norm=0.327 var=0.004 (worst nitro, ratio 12.8) trend=0.525 outl=0.223 nonadd=0.18 spatial=n/a
+                             fails=['residual:var_family'] warns=[]
+mead.cowpea.maize            log      FAIL n= 72 df= 46 norm=0.213 var=0.004 (worst nitro, ratio 17.4) trend=0.290 outl=0.192 nonadd=0.085 spatial=n/a
+                             fails=['residual:var_family'] warns=[]
+woodman.pig                  identity PASS n= 30 df= 19 norm=0.139 var=0.310 (worst sex, ratio 2.8) trend=0.359 outl=0.072 nonadd=0.709 spatial=n/a
+                             Box-Cox lambda=2.0 CI=[-0.7, 2.0]
+woodman.pig                  sqrt     PASS n= 30 df= 19 norm=0.137 var=0.347 (worst sex, ratio 2.7) trend=0.326 outl=0.070 nonadd=0.616 spatial=n/a
+woodman.pig                  log      PASS n= 30 df= 19 norm=0.135 var=0.384 (worst sex, ratio 2.6) trend=0.267 outl=0.068 nonadd=0.529 spatial=n/a
+cochran.eelworms             identity WARN n= 48 df= 35 norm=0.342 var=0.048 (worst block, ratio 5.0) trend=0.066 outl=0.459 nonadd=0.018 spatial=0.053973013493253376
+                             fails=[] warns=['residual:var_family', 'residual:nonadditive']
+cochran.eelworms             sqrt     PASS n= 48 df= 35 norm=0.361 var=0.235 (worst block, ratio 4.5) trend=0.208 outl=0.969 nonadd=0.17 spatial=0.028985507246376812
+                             fails=[] warns=['residual:spatial']
+cochran.eelworms             log      PASS n= 48 df= 35 norm=0.065 var=0.445 (worst block, ratio 3.8) trend=0.691 outl=0.974 nonadd=0.646 spatial=0.01999000499750125
+                             fails=[] warns=['residual:spatial']
