@@ -3,9 +3,6 @@
 Initial prototype. A four-factor split-split-plot experiment analysed in Python, with every model
 assumption checked and the classical ANOVA compared against a REML mixed model.
 
-**Status:** dataset chosen, analysis and figures run end to end from one command. Slides, team number and
-names are not done yet. See [Open items](#open-items).
-
 ## Why this dataset
 
 Thirteen designed experiments were put through one identical set of assumption checks
@@ -22,6 +19,29 @@ more than one size of experimental unit, and clean residuals on the original sca
 | Program and data that run directly | `python analysis.py` reads `data/goulden_splitsplit.csv` and rewrites everything in `outputs/` |
 | Compare a course method with one outside the course | Split-split-plot ANOVA next to a REML mixed model (they agree to 0.01%) |
 
+## Dataset description
+
+`data/goulden_splitsplit.csv`: 160 rows (one per sub-subplot), 9 columns, no missing values.
+
+| Column | Role | Type | Values |
+|---|---|---|---|
+| `yield` | Response | numeric (integer) | 47 to 94; mean 67.1, median 67, SD 8.1 |
+| `gen` | Treatment, whole plot | categorical | Marquis, Mindum (80 rows each) |
+| `dust` | Treatment, subplot | categorical | Check (no dust), CaCO3, Ceresan, DuBay, Semesan (32 rows each) |
+| `dry` | Treatment, subplot | categorical | Dry, Wet (80 rows each) |
+| `inoc` | Treatment, sub-subplot | categorical | Inoc (inoculated soil), Uninoc (uninoculated soil) (80 rows each) |
+| `block` | Blocking | categorical | B1, B2, B3, B4 (40 rows each) |
+| `trt` | Identifier | integer 1 to 10 | One code per dust x method combination (16 rows each); used only to label subplots |
+| `row` | Field position | integer 1 to 8 | One row per whole plot |
+| `col` | Field position | integer 1 to 20 | Two adjacent columns per subplot |
+
+The design is complete and balanced: all 40 combinations of variety, dust, method and soil occur exactly
+4 times, once in each block. The units of `yield` are not stated in the source.
+
+Source: C. H. Goulden (1939), *Methods of Statistical Analysis*, 1st ed., Wiley, pp. 151-159 (Table 39),
+distributed as `goulden.splitsplit` in the R package [agridat](https://kwstat.github.io/agridat/reference/goulden.splitsplit.html)
+and downloaded as CSV from [Rdatasets](https://vincentarelbundock.github.io/Rdatasets/).
+
 ## The experiment
 
 Dominion Rust Research Laboratory, Canada, 1932. The study asked how wheat variety, seed-treatment dust, the way
@@ -35,13 +55,7 @@ the dust was applied, and inoculating the soil with the root-rot organism affect
 | Soil (`inoc`) | Inoculated, Uninoculated | Sub-subplot: half a subplot (160 sub-subplots) |
 | Block (`block`) | B1 to B4 | |
 
-Response: `yield`, plot yield (the source does not state the units). `row` and `col` give the field position.
-
 ![Field layout](outputs/fig1_field_layout.png)
-
-Source: C. H. Goulden (1939), *Methods of Statistical Analysis*, 1st ed., Wiley, pp. 151-159 (Table 39),
-distributed as `goulden.splitsplit` in the R package [agridat](https://kwstat.github.io/agridat/reference/goulden.splitsplit.html)
-and downloaded as CSV from [Rdatasets](https://vincentarelbundock.github.io/Rdatasets/).
 
 ## Model
 
