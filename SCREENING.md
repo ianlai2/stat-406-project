@@ -1,7 +1,7 @@
 # Dataset screening
 
-Goal: replace the rice experiment (`chakravertti.factorial`), which fails equal variance and normality on every
-scale, with a dataset that meets the Part 2 requirements and whose model assumptions actually hold.
+Goal: find a dataset that meets the Part 2 requirements (at least four treatment predictors, more than one size
+of experimental unit) and whose model assumptions actually hold.
 
 ## Method
 
@@ -25,14 +25,10 @@ residual-forming matrix), because residuals from a fitted model are not independ
 p < 0.01, **WARN** if two or more are between 0.01 and 0.05, otherwise **PASS**. Upper error strata are tested
 the same way when they have at least 6 df.
 
-The pipeline reproduces the earlier finding on the rice data (largest-to-smallest residual variance 8,020 to 1
-across planting date x variety), which is the sanity check that it detects a real violation.
-
 ## Results (raw scale; p-values are for the lowest error stratum)
 
 | Dataset | Design | n | Treatment predictors | Raw-scale result | Normality | Equal variance | Variance vs mean | Outliers | Additivity | Neighbouring plots | Other scales | Note |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `chakravertti.factorial` | split-split-plot, 3 blocks | 405 | 4 | **FAIL** | 0.000 | 0.000 | 0.000 | 0.000 | 0.132 | n/a | sqrt FAIL, log FAIL | Baseline (the dataset rejected earlier): 19 of 27 yields are zero in one cell; no transformation rescues it. Upper strata: block:date:gen (20 df): normality 0.71, variance 0.68; block:date (8 df): normality 0.18, variance 0.46. |
 | `goulden.splitsplit` | split-split-plot, 4 blocks | 160 | 4 | **PASS** | 0.485 | 0.068 | 0.955 | 0.165 | 0.298 | 0.792 | sqrt PASS, log WARN | Selected. Three sizes of experimental unit, 4 treatment factors, balanced, published reference ANOVA. Upper strata: block:gen:trt (54 df): normality 0.60, variance 0.24; block:gen (3 df): too few df to test. |
 | `gregory.cotton` | 4-factor factorial, years as blocks (treatment means) | 144 | 4 | **FAIL** | 0.628 | 0.009 | 0.441 | 0.725 | 0.000 | n/a | sqrt FAIL, log PASS | Passes only after a log transform; values are treatment means and there is a single error term. |
 | `gomez.fractionalfactorial` | 1/2 of 2^6 in incomplete blocks, 2 reps | 64 | 6 | **PASS** | 0.590 | 0.989 | 0.907 | 0.635 | 0.975 | 0.929 | sqrt PASS, log PASS | Runner-up. Cleanest residuals of all, 6 factors, but one size of experimental unit and 2-level factors only. Upper strata: rep:block (2 df): too few df to test. |

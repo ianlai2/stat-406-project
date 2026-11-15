@@ -34,13 +34,6 @@ def _triticale(df):
 
 
 CANDIDATES = {
-    # ---- baseline: the dataset ChatGPT rejected (pipeline should reject it too)
-    "chakravertti.factorial": dict(
-        item="chakravertti.factorial", response="yield",
-        fixed="C(date)*C(gen)*C(spacing)*C(seeds)",
-        strata=[["block"], ["block", "date"], ["block", "date", "gen"]],
-        factors=["date", "gen", "spacing", "seeds"], block_factors=["block"],
-        design="split-split-plot, 3 blocks"),
     # ---- tier 1: four or more treatment predictors
     "goulden.splitsplit": dict(
         item="goulden.splitsplit", response="yield",

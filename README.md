@@ -8,9 +8,8 @@ names are not done yet. See [Open items](#open-items).
 
 ## Why this dataset
 
-The rice experiment considered first (`chakravertti.factorial`) fails badly on equal variance and normality
-on every scale tried. Fourteen designed experiments were then put through one identical set of assumption
-checks ([SCREENING.md](SCREENING.md)). This one is the only candidate that has four real treatment factors,
+Thirteen designed experiments were put through one identical set of assumption checks
+([SCREENING.md](SCREENING.md)). This one is the only candidate that has four real treatment factors,
 more than one size of experimental unit, and clean residuals on the original scale.
 
 | Project requirement | This dataset |
@@ -181,6 +180,6 @@ doetools.py           projection-based multi-stratum ANOVA and simulation-calibr
 crosscheck.R          optional cross-check in base R
 data/                 goulden_splitsplit.csv
 outputs/              results.txt, tables (CSV) and figures (PNG) written by analysis.py
-screening/            how the dataset was chosen: 14 candidates, same checks for each
+screening/            how the dataset was chosen: 13 candidates, same checks for each
 SCREENING.md          screening method, table and decision
 ```

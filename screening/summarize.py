@@ -11,7 +11,6 @@ HERE = pathlib.Path(__file__).parent
 res = json.loads((HERE / "results.json").read_text())
 
 NOTES = {
-    "chakravertti.factorial": "Baseline (the dataset rejected earlier): 19 of 27 yields are zero in one cell; no transformation rescues it.",
     "goulden.splitsplit": "Selected. Three sizes of experimental unit, 4 treatment factors, balanced, published reference ANOVA.",
     "gregory.cotton": "Passes only after a log transform; values are treatment means and there is a single error term.",
     "gomez.fractionalfactorial": "Runner-up. Cleanest residuals of all, 6 factors, but one size of experimental unit and 2-level factors only.",

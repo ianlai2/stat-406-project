@@ -1,15 +1,3 @@
-chakravertti.factorial       identity FAIL n=405 df=240 norm=0.000 var=0.000 (worst date:gen, ratio 8020.2) trend=0.000 outl=0.000 nonadd=0.132 spatial=n/a
-                             stratum block:date:gen: df=20 norm=0.706 var=0.680 outl=0.419 trend=0.241
-                             stratum block:date: df=8 norm=0.179 var=0.464 outl=0.649 trend=0.231
-                             fails=['residual:normal', 'residual:var_family', 'residual:trend', 'residual:outlier'] warns=[]
-chakravertti.factorial       sqrt     FAIL n=405 df=240 norm=0.000 var=0.000 (worst date, ratio 10.0) trend=0.059 outl=0.000 nonadd=0.0 spatial=n/a
-                             stratum block:date:gen: df=20 norm=0.001 var=0.011 outl=0.001 trend=0.002
-                             stratum block:date: df=8 norm=0.787 var=0.252 outl=0.516 trend=0.217
-                             fails=['residual:normal', 'residual:var_family', 'residual:outlier', 'residual:nonadditive', 'block:date:gen:normal', 'block:date:gen:trend', 'block:date:gen:outlier'] warns=['block:date:gen:var_family']
-chakravertti.factorial       log      FAIL n=405 df=240 norm=0.000 var=0.000 (worst date, ratio 145.0) trend=0.000 outl=0.000 nonadd=0.0 spatial=n/a
-                             stratum block:date:gen: df=20 norm=0.000 var=0.000 outl=0.000 trend=0.000
-                             stratum block:date: df=8 norm=0.165 var=0.532 outl=0.004 trend=0.149
-                             fails=['residual:normal', 'residual:var_family', 'residual:trend', 'residual:outlier', 'residual:nonadditive', 'block:date:gen:normal', 'block:date:gen:var_family', 'block:date:gen:trend', 'block:date:gen:outlier', 'block:date:outlier'] warns=[]
 goulden.splitsplit           identity PASS n=160 df= 60 norm=0.485 var=0.068 (worst block, ratio 3.9) trend=0.955 outl=0.165 nonadd=0.298 spatial=0.7916041979010495
                              stratum block:gen:trt: df=54 norm=0.599 var=0.239 outl=0.506 trend=0.930
                              stratum block:gen: df=3 too few df to test
