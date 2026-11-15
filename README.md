@@ -153,7 +153,7 @@ matrix and ranking the observed statistic among them.
 
 ![Residual diagnostics](outputs/fig4_residual_diagnostics.png)
 
-Things to say honestly on the slides:
+Additional notes:
 
 - **Whole-plot error has 3 df.** Eight whole plots are too few to test normality or equal variance at that level,
   so the variety test rests on the randomisation and on the assumption, not on a diagnostic.
