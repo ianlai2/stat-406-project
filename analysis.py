@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 import patsy
 import statsmodels.formula.api as smf
+from statsmodels.stats.multitest import multipletests
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.patches import Rectangle
 from scipy import stats
@@ -112,9 +113,14 @@ def anova(d):
     header("2. SPLIT-SPLIT-PLOT ANOVA (one error term per size of experimental unit)")
     a = strata_anova(d, "yield", FIXED, CHAIN, STRATA)
     a["Goulden_SS"] = a["term"].map(GOULDEN_SS)
+    # Holm adjustment over the 15 treatment F tests in the table
+    tested = a["p"].notna()
+    a["p_holm"] = np.nan
+    a.loc[tested, "p_holm"] = multipletests(a.loc[tested, "p"], method="holm")[1]
     show = a.copy()
     show["F"] = show["F"].map(lambda v: "" if np.isnan(v) else f"{v:.2f}")
     show["p"] = a["p"].map(lambda v: "" if np.isnan(v) else fmt_p(v))
+    show["p_holm"] = a["p_holm"].map(lambda v: "" if np.isnan(v) else fmt_p(v))
     show["sig"] = a["p"].map(lambda v: "" if np.isnan(v) else ("***" if v < .001 else "**" if v < .01 else "*" if v < .05 else ""))
     show["Goulden_SS"] = show["Goulden_SS"].map(lambda v: "" if np.isnan(v) else f"{v:.1f}")
     print(show.to_string(index=False, formatters={"SS": "{:.1f}".format, "MS": "{:.2f}".format}))
@@ -124,6 +130,9 @@ def anova(d):
     print(f"\ncheck against the published table: largest |SS - Goulden| over {len(chk)} lines = {worst:.2f}; "
           f"Error (3) + 4-factor interaction = {e3:.1f} (Goulden: 931.1)")
     assert worst < 0.15 and abs(e3 - 931.1) < 0.15, "ANOVA does not reproduce the published table"
+    held = a.loc[a["p_holm"] < 0.05, "term"].tolist()
+    print(f"terms with p < 0.05: {int((a['p'] < 0.05).sum())} of {int(tested.sum())}; "
+          f"still below 0.05 after the Holm adjustment: {', '.join(held)}")
     a.to_csv(OUT / "anova_table.csv", index=False)
     ms = a.set_index("term")["MS"]
     return a, {"blk": ms["Blocks"], 1: ms["Error (1)"], 2: ms["Error (2)"], 3: ms["Error (3)"]}, {1: 3, 2: 54, 3: 60}
@@ -131,7 +140,8 @@ def anova(d):
 
 # ======================================================================================= 3. mixed model
 def mixed_model(d, a, ms):
-    header("3. COMPARISON METHOD: LINEAR MIXED MODEL FITTED BY REML (statsmodels MixedLM)")
+    header("3. VALIDATION: LINEAR MIXED MODEL FITTED BY REML (statsmodels MixedLM)\n"
+           "Balanced data, so agreement with the ANOVA is expected. unequal_variance.R relaxes the equal-variance assumption.")
     f = "Q('yield') ~ C(gen, Sum)*C(dust, Sum)*C(dry, Sum)*C(inoc, Sum)"
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -290,6 +300,13 @@ def inference(d, ms, dfe):
     main = pd.DataFrame(out, columns=cols)
     print("\n5a. One-df main effects")
     print(main.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
+    # the variety F test has 3 error df, so show what the four blocks support without assuming normality
+    vb = d.groupby(["block", "gen"], observed=True)[y].mean().unstack()
+    vdiff = (vb["Mindum"] - vb["Marquis"]).values
+    flips = np.array(list(itertools.product([-1, 1], repeat=len(vdiff))))
+    p_flip = float(np.mean(np.abs((flips * vdiff).mean(1)) >= abs(vdiff.mean()) - 1e-9))
+    print("  Variety by block (Mindum - Marquis): " + "   ".join(f"{b}: {v:+.2f}" for b, v in zip(vb.index, vdiff)))
+    print(f"  Exact sign-flip test over the 4 blocks: p = {p_flip:.3f} (smallest possible value with 4 blocks: {2 / len(flips):.3f})")
 
     # --- dust main effect: Tukey HSD on the subplot error
     dm = m("dust").sort_values(ascending=False)
@@ -346,10 +363,27 @@ def inference(d, ms, dfe):
     print("\n5g. Method effect on untreated (Check) seed, where no dust was applied")
     print(pd.DataFrame([nc], columns=cols).to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
 
+    # --- method effects among the plots that received a dust (error terms pooled from the full model)
+    ds = d[d.dust != "Check"]
+    n_cell = len(ds) / 4
+    w2 = ds.groupby("dry", observed=True)[y].mean()
+    c1 = ds.groupby(["gen", "dry"], observed=True)[y].mean().unstack()
+    c2 = ds.groupby(["dry", "inoc"], observed=True)[y].mean().unstack()
+    gm_int = (c1.loc["Mindum", "Dry"] - c1.loc["Mindum", "Wet"]) - (c1.loc["Marquis", "Dry"] - c1.loc["Marquis", "Wet"])
+    mi_int = (c2.loc["Wet", "Inoc"] - c2.loc["Wet", "Uninoc"]) - (c2.loc["Dry", "Inoc"] - c2.loc["Dry", "Uninoc"])
+    dusted = pd.DataFrame([
+        ci_row("Method: Dry - Wet", w2["Dry"] - w2["Wet"], np.sqrt(ms[2] / n_cell), dfe[2]),
+        ci_row("Variety x method: Dry-Wet gap, Mindum - Marquis", gm_int, np.sqrt(4 * ms[2] / n_cell), dfe[2]),
+        ci_row("Method x inoculation: Inoc-Uninoc gap, Wet - Dry", mi_int, np.sqrt(4 * ms[3] / n_cell), dfe[3]),
+    ], columns=cols)
+    print("\n5h. Method effects among the four dusts only (Check plots excluded, because they received no dust to apply)")
+    print(dusted.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
+
     allc = pd.concat([main.assign(family="main effects"), tuk.assign(family="dust Tukey HSD"),
                       di.assign(family="inoculation within dust"), dc.assign(family="check vs dust within soil"),
                       mi.assign(family="inoculation within method"), gm.assign(family="method within variety"),
-                      pd.DataFrame([nc], columns=cols).assign(family="negative control")])
+                      pd.DataFrame([nc], columns=cols).assign(family="negative control"),
+                      dusted.assign(family="method effects, dusted plots only")])
     allc.to_csv(OUT / "comparisons.csv", index=False)
     return dict(dust_means=dm, dust_letters=lets, se_dust=se_mean, dust_inoc=cell, method_inoc=cell2, gen_method=cell3)
 
@@ -409,10 +443,16 @@ def fig_effects(d, inf, ms, dfe):
     _two_series(axes[2], c.index, c["Mindum"].values, c["Marquis"].values, "Mindum", "Marquis",
                 t2 * np.sqrt(ms[2] / 40), list(c.index), "")
     axes[2].set_title("Variety x method (p = 0.035)")
+    # a variety difference within one method uses whole-plot and subplot error: Var = (MS1 + MS2)/40, Satterthwaite df
+    df_var = (ms[1] + ms[2]) ** 2 / (ms[1] ** 2 / dfe[1] + ms[2] ** 2 / dfe[2])
+    margin_var = stats.t.ppf(0.975, df_var) * np.sqrt((ms[1] + ms[2]) / 40)
+    axes[2].text(0.5, 0.42, f"Variety gap at one method:\n95% margin ±{margin_var:.1f}", transform=axes[2].transAxes,
+                 ha="center", va="center", fontsize=8.5, color=INK2)
     for ax in axes:
         ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12), ncol=2, fontsize=9)
-    fig.text(0.01, -0.06, "Bars: 95% intervals for comparing the two series within a panel position "
-             "(sub-subplot error in the first two panels, subplot error in the third).", fontsize=8.5, color=INK2)
+    fig.text(0.01, -0.09, "Bars: 95% margins from the error term for one comparison only. Panels 1-2: inoculated vs. uninoculated "
+             "(sub-subplot error).\nPanel 3: dry vs. wet within a variety (subplot error). "
+             "Panel 3 bars do not apply to comparing the two varieties.", fontsize=8.5, color=INK2)
     fig.tight_layout()
     fig.savefig(OUT / "fig2_interactions.png", dpi=200, bbox_inches="tight")
     plt.close(fig)

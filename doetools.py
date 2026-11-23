@@ -212,7 +212,7 @@ def boxcox_interval(y, X):
         return None
     M, _ = residual_maker(X)
     y = y / np.exp(np.mean(np.log(y)))  # geometric mean 1: the Jacobian term vanishes
-    lam = np.round(np.arange(-2, 2.0001, 0.05), 2)
+    lam = np.round(np.arange(-4, 8.0001, 0.05), 2)  # wide enough that the interval is not cut off by the grid
     ll = []
     for l in lam:
         z = M @ (np.log(y) if abs(l) < 1e-9 else (y**l - 1) / l)

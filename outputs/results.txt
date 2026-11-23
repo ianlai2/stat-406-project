@@ -16,31 +16,33 @@ mean yield by factor level
 ================================================================================================
 2. SPLIT-SPLIT-PLOT ANOVA (one error term per size of experimental unit)
 ================================================================================================
-     stratum              term  df     SS      MS     F       p Goulden_SS sig
-      Blocks            Blocks   3  989.5  329.84                    989.6    
- Whole plots               gen   1 3638.6 3638.56 16.86  0.0262     3638.6   *
- Whole plots         Error (1)   3  647.6  215.87                    647.6    
-    Subplots              dust   4  987.6  246.90 12.59 <0.0001      987.6 ***
-    Subplots               dry   1  117.3  117.31  5.98  0.0178      117.3   *
-    Subplots          gen:dust   4  146.7   36.67  1.87  0.1292      146.7    
-    Subplots           gen:dry   1   91.5   91.51  4.66  0.0352       91.5   *
-    Subplots          dust:dry   4   46.2   11.54  0.59  0.6725       46.2    
-    Subplots      gen:dust:dry   4  148.1   37.02  1.89  0.1260      148.1    
-    Subplots         Error (2)  54 1059.2   19.62                   1059.1    
-Sub-subplots              inoc   1  965.3  965.31 62.72 <0.0001      965.3 ***
-Sub-subplots          gen:inoc   1    0.3    0.31  0.02  0.8883        0.3    
-Sub-subplots         dust:inoc   4  379.8   94.95  6.17  0.0003      379.8 ***
-Sub-subplots          dry:inoc   1   68.9   68.91  4.48  0.0385       68.9   *
-Sub-subplots     gen:dust:inoc   4  119.4   29.85  1.94  0.1155      119.4    
-Sub-subplots      gen:dry:inoc   1    3.9    3.91  0.25  0.6162        3.9    
-Sub-subplots     dust:dry:inoc   4   25.8    6.45  0.42  0.7941       25.8    
-Sub-subplots gen:dust:dry:inoc   4    7.7    1.92  0.12  0.9729               
-Sub-subplots         Error (3)  60  923.4   15.39                             
+     stratum              term  df     SS      MS     F       p Goulden_SS  p_holm sig
+      Blocks            Blocks   3  989.5  329.84                    989.6            
+ Whole plots               gen   1 3638.6 3638.56 16.86  0.0262     3638.6  0.2877   *
+ Whole plots         Error (1)   3  647.6  215.87                    647.6            
+    Subplots              dust   4  987.6  246.90 12.59 <0.0001      987.6 <0.0001 ***
+    Subplots               dry   1  117.3  117.31  5.98  0.0178      117.3  0.2131   *
+    Subplots          gen:dust   4  146.7   36.67  1.87  0.1292      146.7  0.9236    
+    Subplots           gen:dry   1   91.5   91.51  4.66  0.0352       91.5  0.3524   *
+    Subplots          dust:dry   4   46.2   11.54  0.59  0.6725       46.2  1.0000    
+    Subplots      gen:dust:dry   4  148.1   37.02  1.89  0.1260      148.1  0.9236    
+    Subplots         Error (2)  54 1059.2   19.62                   1059.1            
+Sub-subplots              inoc   1  965.3  965.31 62.72 <0.0001      965.3 <0.0001 ***
+Sub-subplots          gen:inoc   1    0.3    0.31  0.02  0.8883        0.3  1.0000    
+Sub-subplots         dust:inoc   4  379.8   94.95  6.17  0.0003      379.8  0.0041 ***
+Sub-subplots          dry:inoc   1   68.9   68.91  4.48  0.0385       68.9  0.3524   *
+Sub-subplots     gen:dust:inoc   4  119.4   29.85  1.94  0.1155      119.4  0.9236    
+Sub-subplots      gen:dry:inoc   1    3.9    3.91  0.25  0.6162        3.9  1.0000    
+Sub-subplots     dust:dry:inoc   4   25.8    6.45  0.42  0.7941       25.8  1.0000    
+Sub-subplots gen:dust:dry:inoc   4    7.7    1.92  0.12  0.9729             1.0000    
+Sub-subplots         Error (3)  60  923.4   15.39                                     
 
 check against the published table: largest |SS - Goulden| over 17 lines = 0.14; Error (3) + 4-factor interaction = 931.1 (Goulden: 931.1)
+terms with p < 0.05: 7 of 15; still below 0.05 after the Holm adjustment: dust, inoc, dust:inoc
 
 ================================================================================================
-3. COMPARISON METHOD: LINEAR MIXED MODEL FITTED BY REML (statsmodels MixedLM)
+3. VALIDATION: LINEAR MIXED MODEL FITTED BY REML (statsmodels MixedLM)
+Balanced data, so agreement with the ANOVA is expected. unequal_variance.R relaxes the equal-variance assumption.
 ================================================================================================
 converged: True
 
@@ -76,12 +78,12 @@ largest relative difference between the two sets of F statistics: 0.01%
                   stratum                  assumption                                                             statistic     p verdict
     Subplot error (54 df)                   Normality                                                Shapiro-Wilk W = 0.987 0.591      ok
     Subplot error (54 df)              Equal variance  Brown-Forsythe over 7 groupings; worst: block (max/min variance 2.4) 0.235      ok
-    Subplot error (54 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.015 0.902      ok
+    Subplot error (54 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.011 0.931      ok
     Subplot error (54 df)                    Outliers                                 largest |studentized residual| = 2.61 0.495      ok
     Subplot error (54 df)                  Additivity                                                     Tukey one-df test 0.312      ok
 Sub-subplot error (60 df)                   Normality                                                Shapiro-Wilk W = 0.993 0.492      ok
 Sub-subplot error (60 df)              Equal variance Brown-Forsythe over 11 groupings; worst: block (max/min variance 3.9) 0.066      ok
-Sub-subplot error (60 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.008 0.942      ok
+Sub-subplot error (60 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.016 0.885      ok
 Sub-subplot error (60 df)                    Outliers                                 largest |studentized residual| = 2.97 0.181      ok
 Sub-subplot error (60 df)                  Additivity                                                     Tukey one-df test 0.298      ok
 Sub-subplot error (60 df) Independence (field layout)            neighbouring-plot residual correlation statistic z = +0.24 0.813      ok
@@ -108,7 +110,7 @@ equal-variance detail, subplot stratum:
   gen:dry      p = 0.824   ratio = 1.60
   dust:dry     p = 0.817   ratio = 6.93
 
-Box-Cox (sub-subplot stratum): lambda-hat = 1.85, 95% interval [1.05, 2.0]  (1 = no transformation)
+Box-Cox (sub-subplot stratum): lambda-hat = 1.85, 95% interval [1.05, 2.65]  (1 = no transformation)
 Sensitivity to scale: ANOVA repeated on yield^2 -> 7 of the 7 terms significant at 5% on the raw scale stay significant; decision changes: gen:dust (p = 0.129 raw, 0.043 squared)
 
 Whole-plot error has only 3 df (8 whole plots): too few for a formal test. Whole-plot residuals:
@@ -125,6 +127,8 @@ random effects for blocks, whole plots and subplots.
       Variety: Mindum - Marquis     9.538 2.323   3    2.144   16.931  0.0262
               Method: Dry - Wet     1.712 0.700  54    0.309    3.116  0.0178
 Soil: Inoculated - Uninoculated     4.913 0.620  60    3.672    6.153 <0.0001
+  Variety by block (Mindum - Marquis): B1: +5.15   B2: +11.50   B3: +15.15   B4: +6.35
+  Exact sign-flip test over the 4 blocks: p = 0.125 (smallest possible value with 4 blocks: 0.125)
 
 5b. Seed dust main effect: Tukey HSD (subplot error, 54 df); means sharing a letter do not differ
   Check: 71.16 a   CaCO3: 68.84 ab   Semesan: 65.75 bc   Ceresan: 65.09 c   DuBay: 64.75 c
@@ -174,6 +178,12 @@ Marquis: Dry - Wet     0.200 0.990  54   -2.083    2.483 1.0000
             comparison  estimate    SE  df  lower95  upper95      p
 Check plots: Dry - Wet     2.562 1.566  54   -0.577    5.702 0.1076
 
+5h. Method effects among the four dusts only (Check plots excluded, because they received no dust to apply)
+                                      comparison  estimate    SE  df  lower95  upper95      p
+                               Method: Dry - Wet     1.500 0.783  54   -0.070    3.070 0.0607
+ Variety x method: Dry-Wet gap, Mindum - Marquis     4.625 1.566  54    1.486    7.764 0.0046
+Method x inoculation: Inoc-Uninoc gap, Wet - Dry     3.188 1.387  60    0.413    5.962 0.0251
+
 ================================================================================================
 FILES WRITTEN
 ================================================================================================
@@ -189,4 +199,6 @@ FILES WRITTEN
   outputs/r_crosscheck.txt
   outputs/results.txt
   outputs/sensitivity_yield_squared.csv
+  outputs/unequal_variance.csv
+  outputs/unequal_variance.txt
   outputs/variance_components.csv

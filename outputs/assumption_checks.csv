@@ -1,12 +1,12 @@
 stratum,assumption,statistic,p,verdict
 Subplot error (54 df),Normality,Shapiro-Wilk W = 0.987,0.5910817836432714,ok
 Subplot error (54 df),Equal variance,Brown-Forsythe over 7 groupings; worst: block (max/min variance 2.4),0.23535292941411717,ok
-Subplot error (54 df),Variance vs mean,"Spearman(|resid|, fitted) = -0.015",0.9024195160967806,ok
+Subplot error (54 df),Variance vs mean,"Spearman(|resid|, fitted) = -0.011",0.9310137972405519,ok
 Subplot error (54 df),Outliers,largest |studentized residual| = 2.61,0.4947010597880424,ok
-Subplot error (54 df),Additivity,Tukey one-df test,0.3118791825684496,ok
+Subplot error (54 df),Additivity,Tukey one-df test,0.3118791825684109,ok
 Sub-subplot error (60 df),Normality,Shapiro-Wilk W = 0.993,0.4923015396920616,ok
 Sub-subplot error (60 df),Equal variance,Brown-Forsythe over 11 groupings; worst: block (max/min variance 3.9),0.0655868826234753,ok
-Sub-subplot error (60 df),Variance vs mean,"Spearman(|resid|, fitted) = -0.008",0.9416116776644671,ok
+Sub-subplot error (60 df),Variance vs mean,"Spearman(|resid|, fitted) = -0.016",0.8852229554089183,ok
 Sub-subplot error (60 df),Outliers,largest |studentized residual| = 2.97,0.1809638072385523,ok
-Sub-subplot error (60 df),Additivity,Tukey one-df test,0.29795397547579644,ok
+Sub-subplot error (60 df),Additivity,Tukey one-df test,0.2979539754757726,ok
 Sub-subplot error (60 df),Independence (field layout),neighbouring-plot residual correlation statistic z = +0.24,0.8126374725054989,ok
