@@ -3,11 +3,28 @@
 A four-factor split-split-plot experiment, analysed with the classical ANOVA and compared with mixed models that
 allow unequal variances.
 
-**Result.** Seed dust, soil inoculation and their interaction are solid effects. Variety and application method
-hold with caveats. Two interactions involving method are suggestive only.
-
 The analysis runs in this order, and this page follows it: design, ANOVA, which levels differ, assumption checks,
 validation, comparison method, robustness, conclusions.
+
+## Summary of the analysis
+
+The full write-up, with the expected mean squares and a worked example, is in [ANALYSIS.md](ANALYSIS.md).
+
+- **Model.** Four fixed factors with all interactions, and three random error terms, one for each size of unit that
+  was randomized: 8 whole plots (variety), 80 subplots (dust and method), 160 sub-subplots (inoculation).
+- **Where the noise is.** Variance components are 15.39 (sub-subplot), 2.11 (subplot), 9.81 (whole plot) and 2.85 (block).
+- **Solid effects.** Seed dust, soil inoculation and their interaction (all p <= 0.004 after a Holm adjustment).
+  Inoculated soil yields 10.3 more on untreated seed and 6.3 more with CaCO3, but only 2.3 to 3.4 more with the three mercury dusts.
+- **Effects that hold with caveats.** Mindum outyields Marquis by 9.5 (p = 0.026) and dry application beats wet by 1.7
+  (p = 0.018). Neither survives the Holm adjustment, and the variety test has only 3 error df.
+- **Suggestive only.** Variety x method and method x inoculation (p = 0.035 and 0.039) lose significance under at
+  least one unequal-variance model.
+- **Assumptions.** Normality, outliers, additivity and spatial independence pass. Equal variance across blocks is
+  the weak point, and the whole-plot stratum is too small to check.
+- **Method comparison.** An equal-variance REML mixed model matches the ANOVA to 0.01%. Models with a separate
+  variance per block or per dust fit better (p = 0.035 and 0.028) and change the verdict only on the two suggestive effects.
+- **Limits.** Inoculated soil and untreated seed both yield more, the opposite of what a root-rot study would lead
+  one to expect. The data match the published totals, and the model cannot explain it.
 
 ## Why this dataset
 
@@ -103,8 +120,7 @@ Tested with Python 3.13, numpy 2.5, pandas 3.0, scipy 1.18, statsmodels 0.15, ma
 
 ## Results
 
-Full log: [outputs/results.txt](outputs/results.txt). Written-up interpretation with the expected mean squares and a
-worked example: [ANALYSIS.md](ANALYSIS.md). The numbered headings below match its sections.
+Full log: [outputs/results.txt](outputs/results.txt). The numbered headings below match its sections.
 
 ### 2. ANOVA
 
