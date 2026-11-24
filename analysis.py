@@ -1,4 +1,4 @@
-"""STAT 406 Project Part 2 - prototype analysis.
+"""STAT 406 Project Part 2 - analysis.
 
 Data: Goulden (1939) wheat root-rot seed-treatment experiment (agridat::goulden.splitsplit).
 Design: split-split-plot in 4 blocks, 160 plots.
@@ -9,10 +9,17 @@ Response: plot yield.
 
 Run:  python analysis.py
 Writes every table and figure to outputs/ and the full console log to outputs/results.txt.
+
+Sections of the log: 1 data, 2 ANOVA, 3 which levels differ, 4 assumption checks, 5 validation against an
+equal-variance REML mixed model, 6 comparison method (REML mixed models with unequal variances, fitted by
+unequal_variance.R), 7 how robust each significant effect is.  Section 6 runs the R script when Rscript is
+installed and otherwise reads the results saved in outputs/.
 """
 import itertools
 import pathlib
 import re
+import shutil
+import subprocess
 import sys
 import warnings
 
@@ -138,10 +145,10 @@ def anova(d):
     return a, {"blk": ms["Blocks"], 1: ms["Error (1)"], 2: ms["Error (2)"], 3: ms["Error (3)"]}, {1: 3, 2: 54, 3: 60}
 
 
-# ======================================================================================= 3. mixed model
+# ======================================================================================= 5. validation
 def mixed_model(d, a, ms):
-    header("3. VALIDATION: LINEAR MIXED MODEL FITTED BY REML (statsmodels MixedLM)\n"
-           "Balanced data, so agreement with the ANOVA is expected. unequal_variance.R relaxes the equal-variance assumption.")
+    header("5. VALIDATION: LINEAR MIXED MODEL FITTED BY REML WITH EQUAL VARIANCES (statsmodels MixedLM)\n"
+           "Balanced data, so agreement with the ANOVA is expected. Section 6 relaxes the equal-variance assumption.")
     f = "Q('yield') ~ C(gen, Sum)*C(dust, Sum)*C(dry, Sum)*C(inoc, Sum)"
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -259,7 +266,7 @@ def assumptions(d, aov):
     return res, {2: t2, 3: t3}, rng
 
 
-# ======================================================================================= 5. inference
+# ======================================================================================= 3. inference
 def ci_row(label, est, se, df, mult=1):
     t = est / se
     p = min(1.0, 2 * stats.t.sf(abs(t), df) * mult)
@@ -285,7 +292,7 @@ def letters(means, sig):
 
 
 def inference(d, ms, dfe):
-    header("5. INFERENCE: WHICH LEVELS DIFFER (each comparison uses the error term of its own stratum)")
+    header("3. WHICH LEVELS DIFFER (each comparison uses the error term of its own stratum)")
     y = "yield"
     cols = ["comparison", "estimate", "SE", "df", "lower95", "upper95", "p"]
     m = lambda f: d.groupby(f, observed=True)[y].mean()  # noqa: E731
@@ -298,7 +305,7 @@ def inference(d, ms, dfe):
     i = m("inoc")
     out.append(ci_row("Soil: Inoculated - Uninoculated", i["Inoc"] - i["Uninoc"], np.sqrt(2 * ms[3] / 80), dfe[3]))
     main = pd.DataFrame(out, columns=cols)
-    print("\n5a. One-df main effects")
+    print("\n3a. One-df main effects")
     print(main.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
     # the variety F test has 3 error df, so show what the four blocks support without assuming normality
     vb = d.groupby(["block", "gen"], observed=True)[y].mean().unstack()
@@ -322,7 +329,7 @@ def inference(d, ms, dfe):
         sig[ia][ib] = sig[ib][ia] = p < 0.05
     tuk = pd.DataFrame(rows, columns=cols)
     lets = letters(dm.values, sig)
-    print("\n5b. Seed dust main effect: Tukey HSD (subplot error, 54 df); means sharing a letter do not differ")
+    print("\n3b. Seed dust main effect: Tukey HSD (subplot error, 54 df); means sharing a letter do not differ")
     print("  " + "   ".join(f"{k}: {v:.2f} {l}" for (k, v), l in zip(dm.items(), lets)))
     print(tuk.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
     chk = d[d.dust == "Check"][y].mean() - d[d.dust != "Check"][y].mean()
@@ -334,7 +341,7 @@ def inference(d, ms, dfe):
     rows = [ci_row(f"{k}: Inoc - Uninoc", cell.loc[k, "Inoc"] - cell.loc[k, "Uninoc"], np.sqrt(2 * ms[3] / 16), dfe[3], 5)
             for k in cell.index]
     di = pd.DataFrame(rows, columns=cols)
-    print("\n5c. Dust x inoculation: inoculation effect within each dust (sub-subplot error, Bonferroni for 5)")
+    print("\n3c. Dust x inoculation: inoculation effect within each dust (sub-subplot error, Bonferroni for 5)")
     print(di.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
     # dusts compared within one soil condition need both errors: Var = (MS2 + MS3)/16, Satterthwaite df
     v = (ms[2] + ms[3]) / 16
@@ -342,25 +349,25 @@ def inference(d, ms, dfe):
     rows = [ci_row(f"{s}: Check - {k}", cell.loc["Check", s] - cell.loc[k, s], np.sqrt(v), dfs, 8)
             for s in ["Inoc", "Uninoc"] for k in cell.index if k != "Check"]
     dc = pd.DataFrame(rows, columns=cols)
-    print(f"\n5d. Check vs each dust within a soil condition (SE from MS2 and MS3, Satterthwaite df = {dfs:.1f}, Bonferroni for 8)")
+    print(f"\n3d. Check vs each dust within a soil condition (SE from MS2 and MS3, Satterthwaite df = {dfs:.1f}, Bonferroni for 8)")
     print(dc.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
 
     # --- method x inoculation, variety x method
     cell2 = d.groupby(["dry", "inoc"], observed=True)[y].mean().unstack()
     mi = pd.DataFrame([ci_row(f"{k}: Inoc - Uninoc", cell2.loc[k, "Inoc"] - cell2.loc[k, "Uninoc"], np.sqrt(2 * ms[3] / 40), dfe[3], 2)
                        for k in cell2.index], columns=cols)
-    print("\n5e. Method x inoculation: inoculation effect within each method (sub-subplot error, Bonferroni for 2)")
+    print("\n3e. Method x inoculation: inoculation effect within each method (sub-subplot error, Bonferroni for 2)")
     print(mi.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
     cell3 = d.groupby(["gen", "dry"], observed=True)[y].mean().unstack()
     gm = pd.DataFrame([ci_row(f"{k}: Dry - Wet", cell3.loc[k, "Dry"] - cell3.loc[k, "Wet"], np.sqrt(2 * ms[2] / 40), dfe[2], 2)
                        for k in cell3.index], columns=cols)
-    print("\n5f. Variety x method: dry-vs-wet effect within each variety (subplot error, Bonferroni for 2)")
+    print("\n3f. Variety x method: dry-vs-wet effect within each variety (subplot error, Bonferroni for 2)")
     print(gm.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
 
     # --- built-in negative control: "Dry" and "Wet" check plots received no dust at all
     cc = d[d.dust == "Check"].groupby("dry", observed=True)[y].mean()
     nc = ci_row("Check plots: Dry - Wet", cc["Dry"] - cc["Wet"], np.sqrt(2 * ms[2] / 16), dfe[2])
-    print("\n5g. Method effect on untreated (Check) seed, where no dust was applied")
+    print("\n3g. Method effect on untreated (Check) seed, where no dust was applied")
     print(pd.DataFrame([nc], columns=cols).to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
 
     # --- method effects among the plots that received a dust (error terms pooled from the full model)
@@ -376,7 +383,7 @@ def inference(d, ms, dfe):
         ci_row("Variety x method: Dry-Wet gap, Mindum - Marquis", gm_int, np.sqrt(4 * ms[2] / n_cell), dfe[2]),
         ci_row("Method x inoculation: Inoc-Uninoc gap, Wet - Dry", mi_int, np.sqrt(4 * ms[3] / n_cell), dfe[3]),
     ], columns=cols)
-    print("\n5h. Method effects among the four dusts only (Check plots excluded, because they received no dust to apply)")
+    print("\n3h. Method effects among the four dusts only (Check plots excluded, because they received no dust to apply)")
     print(dusted.to_string(index=False, float_format="{:.3f}".format, formatters={"p": fmt_p}))
 
     allc = pd.concat([main.assign(family="main effects"), tuk.assign(family="dust Tukey HSD"),
@@ -385,7 +392,7 @@ def inference(d, ms, dfe):
                       pd.DataFrame([nc], columns=cols).assign(family="negative control"),
                       dusted.assign(family="method effects, dusted plots only")])
     allc.to_csv(OUT / "comparisons.csv", index=False)
-    return dict(dust_means=dm, dust_letters=lets, se_dust=se_mean, dust_inoc=cell, method_inoc=cell2, gen_method=cell3)
+    return dict(p_flip=p_flip, dust_means=dm, dust_letters=lets, se_dust=se_mean, dust_inoc=cell, method_inoc=cell2, gen_method=cell3)
 
 
 # ======================================================================================= 6. figures
@@ -539,15 +546,76 @@ def fig_diagnostics(d, res, rng):
     plt.close(fig)
 
 
+# ======================================================================================= 6. comparison method
+def unequal_variance():
+    header("6. COMPARISON METHOD: REML MIXED MODELS WITH UNEQUAL RESIDUAL VARIANCES (nlme, unequal_variance.R)\n"
+           "Follows up the closest assumption check in section 4: residual variance by block, and by seed dust.")
+    rscript = shutil.which("Rscript")
+    ran = False
+    if rscript:
+        run = subprocess.run([rscript, "unequal_variance.R"], cwd=HERE, capture_output=True, text=True)
+        ran = run.returncode == 0
+        if not ran:
+            print("Rscript failed, so the saved results are shown instead:\n" + run.stderr.strip()[-400:])
+    txt, csv = OUT / "unequal_variance.txt", OUT / "unequal_variance.csv"
+    if not (txt.exists() and csv.exists()):
+        print("Rscript is not installed and outputs/unequal_variance.* are missing: sections 6 and 7 skipped.")
+        return None
+    print("source: " + ("unequal_variance.R, run just now" if ran else
+                        "saved outputs/unequal_variance.txt (Rscript not available; run Rscript unequal_variance.R to refresh)"))
+    print()
+    print(txt.read_text(encoding="utf-8").rstrip())
+    return pd.read_csv(csv)
+
+
+# ======================================================================================= 7. robustness
+def robustness(a, uv, p_flip):
+    header("7. HOW ROBUST IS EACH SIGNIFICANT EFFECT\n"
+           "Every term with p < 0.05 in section 2, re-tested with the Holm adjustment and under both unequal-variance models.")
+    t = a.dropna(subset=["p"]).merge(uv, on="term")
+    sig = t[t["p"] < 0.05].copy()
+
+    def reading(r):
+        if r["p_holm"] < 0.05 and r["p_largest"] < 0.05:
+            return "solid"
+        if r["p_largest"] < 0.05:
+            return "holds under every variance model, not after Holm"
+        return "suggestive only"
+
+    sig["reading"] = sig.apply(reading, axis=1)
+    rob = sig[["term", "p", "p_holm", "p_variance_by_block", "p_variance_by_dust", "reading"]].rename(
+        columns={"p": "p_anova"})
+    order = {"solid": 0, "holds under every variance model, not after Holm": 1, "suggestive only": 2}
+    rob = rob.sort_values("reading", key=lambda c: c.map(order), kind="stable")
+    pc = ["p_anova", "p_holm", "p_variance_by_block", "p_variance_by_dust"]
+    print(rob.to_string(index=False, formatters={c: fmt_p for c in pc}))
+    rob.to_csv(OUT / "robustness.csv", index=False)
+    counts = rob["reading"].value_counts()
+    print("\nsummary: " + "; ".join(f"{int(counts.get(k, 0))} {k}" for k in order))
+    print(f"variety: only 3 error df; the exact sign-flip test over the 4 blocks gives p = {p_flip:.3f}, "
+          "so its F test leans on normality")
+    other = t[(t["p"] >= 0.05) & ((t["p_variance_by_block"] < 0.05) | (t["p_variance_by_dust"] < 0.05))]
+    if len(other):
+        print("\nterms not significant in the ANOVA that fall below 0.05 under one unequal-variance model:")
+        print(other[["term", "p", "p_variance_by_block", "p_variance_by_dust"]].rename(columns={"p": "p_anova"})
+              .to_string(index=False, formatters={c: fmt_p for c in pc}))
+        print("These are not treated as findings: none holds under both variance models, the by-block variance "
+              "ratios are\nimprecise (section 6), and these F tests treat estimated variances as known.")
+    return rob
+
+
 # ======================================================================================= main
 def main():
     sys.stdout = Tee(OUT / "results.txt")
     d = load()
     describe(d)
     a, ms, dfe = anova(d)
-    mixed_model(d, a, ms)
-    res, tests, rng = assumptions(d, a)
     inf = inference(d, ms, dfe)
+    res, tests, rng = assumptions(d, a)
+    mixed_model(d, a, ms)
+    uv = unequal_variance()
+    if uv is not None:
+        robustness(a, uv, inf["p_flip"])
     fig_layout(d)
     fig_effects(d, inf, ms, dfe)
     fig_diagnostics(d, res, rng)

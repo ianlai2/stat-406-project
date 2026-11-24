@@ -1,8 +1,13 @@
 # STAT 406 Project Part 2: seed treatment, variety and soil inoculation in wheat
 
-A four-factor split-split-plot experiment analysed in Python. Every model assumption is checked, the classical
-ANOVA is validated against a REML mixed model, and the conclusions are stress-tested three ways: a Holm
-adjustment, an exact test for the variety effect, and mixed models that allow unequal variances.
+A four-factor split-split-plot experiment, analysed with the classical ANOVA and compared with mixed models that
+allow unequal variances.
+
+**Result.** Seed dust, soil inoculation and their interaction are solid effects. Variety and application method
+hold with caveats. Two interactions involving method are suggestive only.
+
+The analysis runs in this order, and this page follows it: design, ANOVA, which levels differ, assumption checks,
+validation, comparison method, robustness, conclusions.
 
 ## Why this dataset
 
@@ -15,9 +20,9 @@ more than one size of experimental unit, and clean residuals on the original sca
 | At least four predictors, interactions not counted | Variety, seed dust, application method, soil inoculation (blocks are extra) |
 | Numerical or binary response | Plot yield, 160 plots, no missing values |
 | "Different sizes of experimental units, random effects, blocks" | Three sizes of unit (whole plot, subplot, sub-subplot) in 4 blocks, so three error terms |
-| Check all assumptions | All checks pass in both testable error strata (table below) |
+| Check all assumptions | All checks pass in both testable error strata (section 4); the closest call, equal variance across blocks, is followed up in section 6 |
 | Say which levels differ | Seven effects with p < 0.05, including three interactions, with follow-up comparisons and a table of how robust each one is |
-| Program and data that run directly | `python analysis.py` reads `data/goulden_splitsplit.csv` and rewrites everything in `outputs/`; `Rscript unequal_variance.R` adds the unequal-variance models |
+| Program and data that run directly | `python analysis.py` reads `data/goulden_splitsplit.csv` and rewrites everything in `outputs/` |
 | Compare a course method with one outside the course | Split-split-plot ANOVA next to REML mixed models with a separate residual variance per block or per dust (`unequal_variance.R`). The equal-variance REML fit agrees with the ANOVA to 0.01% and serves as validation |
 
 ## Dataset description
@@ -88,19 +93,19 @@ pip install -r requirements.txt
 python analysis.py
 ```
 
-```bash
-Rscript unequal_variance.R
-```
+This one command runs the whole analysis in about 10 seconds. The comparison method is fitted in R: if `Rscript` is
+installed, `analysis.py` runs `unequal_variance.R` itself; if not, it uses the results saved in `outputs/` and says
+so in the log.
 
-The Python script takes about 10 seconds. Tested with Python 3.13, numpy 2.5, pandas 3.0, scipy 1.18, statsmodels 0.15,
-matplotlib 3.11, and R 4.3 (only `nlme`, which ships with R). `Rscript crosscheck.R` is an optional cross-check in
-base R; its output is saved in `outputs/r_crosscheck.txt`.
+Tested with Python 3.13, numpy 2.5, pandas 3.0, scipy 1.18, statsmodels 0.15, matplotlib 3.11, and R 4.3 (only
+`nlme`, which ships with R). `Rscript crosscheck.R` is an optional cross-check in base R; its output is saved in
+`outputs/r_crosscheck.txt`.
 
 ## Results
 
-Full log: [outputs/results.txt](outputs/results.txt).
+Full log: [outputs/results.txt](outputs/results.txt). The numbered headings below match its sections.
 
-### ANOVA
+### 2. ANOVA
 
 | Stratum | Term | df | SS | MS | F | p |
 |---|---|---|---|---|---|---|
@@ -127,26 +132,9 @@ Full log: [outputs/results.txt](outputs/results.txt).
 The script checks these sums of squares against the table printed in Goulden (1939, p. 157): all 17 published
 lines match to within 0.14 (rounding in the hand calculation), and `aov` and `nlme::lme` in R give the same F statistics.
 
-### How robust is each effect
+Seven terms have p < 0.05. These are 15 unadjusted F tests, so section 7 checks how well each one holds up.
 
-Seven terms have p < 0.05 in the table above. That is 15 F tests with no multiplicity adjustment, under an
-equal-variance assumption that is a close call in one stratum, so each term was re-tested three ways.
-
-| Term | ANOVA p | Holm-adjusted p | Variance by block | Variance by dust | Reading |
-|---|---|---|---|---|---|
-| Dust | <0.0001 | <0.0001 | <0.0001 | <0.0001 | Solid |
-| Inoculation | <0.0001 | <0.0001 | <0.0001 | <0.0001 | Solid |
-| Dust x Inoculation | 0.0003 | 0.004 | <0.0001 | 0.0002 | Solid |
-| Variety | 0.026 | 0.29 | 0.028 | 0.030 | Holds under every variance model, not after Holm; only 3 error df |
-| Method | 0.018 | 0.21 | 0.034 | 0.026 | Holds under every variance model, not after Holm |
-| Variety x Method | 0.035 | 0.35 | 0.12 | 0.064 | Suggestive only |
-| Method x Inoculation | 0.039 | 0.35 | 0.22 | 0.013 | Suggestive only |
-
-Dust, inoculation and their interaction survive everything. Variety and method keep p < 0.05 under all three
-variance models but not after the Holm adjustment. The two method interactions depend on the equal-variance
-assumption and should be reported as suggestive.
-
-### What differs
+### 3. Which levels differ
 
 - **Variety.** Mindum outyields Marquis by 9.5 (95% CI 2.1 to 16.9). The interval is wide because this test has only 3 error df.
   Mindum is ahead in every block (by 5.2, 11.5, 15.2 and 6.4), but an exact sign-flip test on those four differences gives
@@ -167,35 +155,7 @@ assumption and should be reported as suggestive.
 
 ![Dust means](outputs/fig3_dust_means.png)
 
-### Validation: REML mixed model with equal variances
-
-A linear mixed model with random intercepts for block, whole plot and subplot, fitted by REML in `statsmodels`,
-gives variance components 2.85 (block), 9.81 (whole plot), 2.11 (subplot) and 15.39 (residual). These equal the
-method-of-moments values from the ANOVA mean squares, and the Wald F statistics match the ANOVA F statistics to
-within 0.01%, as theory says they should for balanced data. One practical note: statsmodels' default optimiser
-(L-BFGS) stops short of the optimum on this model; the script uses BFGS, which reaches the same answer as R.
-Because the data are balanced this agreement is expected, so it validates the code more than it compares methods.
-
-### Comparison method: mixed models with unequal variances
-
-`unequal_variance.R` refits the same model in `nlme` with a separate residual variance for each block, and again
-with one for each dust. Full output: [outputs/unequal_variance.txt](outputs/unequal_variance.txt).
-
-| Variance model | Likelihood-ratio test vs. equal variance | Residual SD ratios (reference = 1) | 95% intervals for the ratios |
-|---|---|---|---|
-| By block | 8.63 on 3 df, p = 0.035 | B2 3.4, B3 2.7, B4 2.4 (reference B1) | All three contain 1 (widest 0.9 to 13.2) |
-| By dust | 10.88 on 4 df, p = 0.028 | Semesan 2.1, DuBay 1.8, Check 1.5, CaCO3 1.3 (reference Ceresan) | Semesan and DuBay exclude 1 |
-
-Both fit better than a single variance, so the classical ANOVA's equal-variance assumption is not fully safe here.
-The p-values under each model are in the robustness table above.
-
-The by-block model has to be read with care. It also moves two terms the other way: the four-factor interaction
-goes from p = 0.97 to 0.022 and Variety x Dust x Inoculation from 0.12 to 0.004. These are not findings. The
-model puts block B1's residual variance at 2.2 against 15.4 overall while doubling the subplot variance (2.1 to 4.3),
-the SD ratios are too imprecise to distinguish from 1, and the F tests treat the estimated variances as known,
-which makes them too optimistic. Neither term comes near significance under the by-dust model (0.97 and 0.13).
-
-### Assumption checks
+### 4. Assumption checks
 
 Residuals from a fitted model are not independent of each other, so textbook p-values for residual tests are off.
 Each p-value below is calibrated by pushing 5,000 simulated normal error vectors through the same residual-forming
@@ -222,10 +182,73 @@ Additional notes:
 - **Whole-plot error has 3 df.** Eight whole plots are too few to test normality or equal variance at that level,
   so the variety test rests on the randomisation and on the assumption, not on a diagnostic.
 - **Block-to-block variance** in the sub-subplot stratum is the closest call: p = 0.011 for that grouping alone,
-  0.066 after allowing for the 11 groupings examined. The unequal-variance models above follow this up.
+  0.066 after allowing for the 11 groupings examined. Section 6 follows this up.
 - **Box-Cox** on the sub-subplot stratum gives lambda = 1.85 with 95% interval 1.05 to 2.65, which just excludes 1
   (no transformation). Repeating the ANOVA on yield squared keeps all seven significant terms significant; the only
   change is that Variety x Dust moves from p = 0.129 to p = 0.043.
+
+### 5. Validation: REML mixed model with equal variances
+
+A linear mixed model with random intercepts for block, whole plot and subplot, fitted by REML in `statsmodels`,
+gives variance components 2.85 (block), 9.81 (whole plot), 2.11 (subplot) and 15.39 (residual). These equal the
+method-of-moments values from the ANOVA mean squares, and the Wald F statistics match the ANOVA F statistics to
+within 0.01%, as theory says they should for balanced data. One practical note: statsmodels' default optimiser
+(L-BFGS) stops short of the optimum on this model; the script uses BFGS, which reaches the same answer as R.
+Because the data are balanced this agreement is expected, so it validates the code more than it compares methods.
+
+### 6. Comparison method: mixed models with unequal variances
+
+The equal-variance check for blocks was the closest call in section 4, so `unequal_variance.R` refits the same model
+in `nlme` with a separate residual variance for each block, and again with one for each dust. Full output: [outputs/unequal_variance.txt](outputs/unequal_variance.txt).
+
+| Variance model | Likelihood-ratio test vs. equal variance | Residual SD ratios (reference = 1) | 95% intervals for the ratios |
+|---|---|---|---|
+| By block | 8.63 on 3 df, p = 0.035 | B2 3.4, B3 2.7, B4 2.4 (reference B1) | All three contain 1 (widest 0.9 to 13.2) |
+| By dust | 10.88 on 4 df, p = 0.028 | Semesan 2.1, DuBay 1.8, Check 1.5, CaCO3 1.3 (reference Ceresan) | Semesan and DuBay exclude 1 |
+
+Both fit better than a single variance, so the classical ANOVA's equal-variance assumption is not fully safe here.
+The p-values under each model are in section 7.
+
+The by-block model has to be read with care. It also moves two terms the other way: the four-factor interaction
+goes from p = 0.97 to 0.022 and Variety x Dust x Inoculation from 0.12 to 0.004. These are not findings. The
+model puts block B1's residual variance at 2.2 against 15.4 overall while doubling the subplot variance (2.1 to 4.3),
+the SD ratios are too imprecise to distinguish from 1, and the F tests treat the estimated variances as known,
+which makes them too optimistic. Neither term comes near significance under the by-dust model (0.97 and 0.13).
+
+### 7. How robust is each effect
+
+Seven terms have p < 0.05 in the ANOVA. That is 15 F tests with no multiplicity adjustment, under an
+equal-variance assumption that section 6 shows is not fully safe. Each term is therefore re-tested with a Holm
+adjustment and under both unequal-variance models. The script writes this table to `outputs/robustness.csv`.
+
+| Term | ANOVA p | Holm-adjusted p | Variance by block | Variance by dust | Reading |
+|---|---|---|---|---|---|
+| Dust | <0.0001 | <0.0001 | <0.0001 | <0.0001 | Solid |
+| Inoculation | <0.0001 | <0.0001 | <0.0001 | <0.0001 | Solid |
+| Dust x Inoculation | 0.0003 | 0.004 | <0.0001 | 0.0002 | Solid |
+| Variety | 0.026 | 0.29 | 0.028 | 0.030 | Holds under every variance model, not after Holm; only 3 error df |
+| Method | 0.018 | 0.21 | 0.034 | 0.026 | Holds under every variance model, not after Holm |
+| Variety x Method | 0.035 | 0.35 | 0.12 | 0.064 | Suggestive only |
+| Method x Inoculation | 0.039 | 0.35 | 0.22 | 0.013 | Suggestive only |
+
+Dust, inoculation and their interaction survive everything. Variety and method keep p < 0.05 under all three
+variance models but not after the Holm adjustment. The two method interactions depend on the equal-variance
+assumption and should be reported as suggestive.
+
+## Conclusions
+
+1. **Seed dust matters, and untreated seed did best.** Check and CaCO3 outyield Ceresan and DuBay, and Check also beats Semesan.
+2. **Inoculated soil yielded more, mostly on untreated or CaCO3-treated seed.** The inoculation effect is 10.3 for
+   Check and 6.3 for CaCO3, against 2.3 to 3.4 for the three mercury dusts. This interaction is the clearest result.
+3. **Mindum outyields Marquis by about 9.5, with a caveat.** It leads in every block, but the test has 3 error df
+   and does not survive the Holm adjustment.
+4. **Dry application yields slightly more than wet (1.7), with the same caveat.** Among dusted plots only it is 1.5 (p = 0.061).
+5. **Variety x method and method x inoculation are suggestive only.** Both lose significance after Holm and under at
+   least one unequal-variance model.
+6. **Method comparison.** The classical ANOVA and the equal-variance mixed model are identical here. Allowing unequal
+   variances fits better and changes the verdict on the two weakest effects, but not on the five above.
+
+The direction of the dust and inoculation effects is the opposite of what a root-rot study would lead one to expect; see open item 3.
 
 ## Open items
 
@@ -236,16 +259,14 @@ Additional notes:
    yield more. The data match Goulden's printed totals, so this is in the source, not a coding error. He presents
    the example for the method and the excerpt read so far gives no agronomic explanation. Worth one sentence on a slide.
 4. "Dry" and "Wet" Check plots received no dust; their difference (2.6, p = 0.11) is consistent with noise.
-5. Agree as a team on the headline for the slides. The robustness table supports "three solid effects, two that hold
-   with caveats, two suggestive"; "seven significant effects" is only true unadjusted.
 
 ## Repository layout
 
 ```
-analysis.py           main analysis: ANOVA, mixed model, assumption checks, comparisons, figures
+analysis.py           the whole analysis, sections 1 to 7, plus figures; runs unequal_variance.R when R is installed
 doetools.py           projection-based multi-stratum ANOVA and simulation-calibrated residual tests
 crosscheck.R          optional cross-check in base R
-unequal_variance.R    comparison method: REML mixed models with unequal residual variances (nlme)
+unequal_variance.R    comparison method (section 6): REML mixed models with unequal residual variances (nlme)
 data/                 goulden_splitsplit.csv
 outputs/              results.txt, tables (CSV) and figures (PNG) written by analysis.py
 screening/            how the dataset was chosen: 13 candidates, same checks for each
