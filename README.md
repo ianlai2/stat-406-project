@@ -103,7 +103,8 @@ Tested with Python 3.13, numpy 2.5, pandas 3.0, scipy 1.18, statsmodels 0.15, ma
 
 ## Results
 
-Full log: [outputs/results.txt](outputs/results.txt). The numbered headings below match its sections.
+Full log: [outputs/results.txt](outputs/results.txt). Written-up interpretation with the expected mean squares and a
+worked example: [ANALYSIS.md](ANALYSIS.md). The numbered headings below match its sections.
 
 ### 2. ANOVA
 
@@ -270,5 +271,6 @@ unequal_variance.R    comparison method (section 6): REML mixed models with uneq
 data/                 goulden_splitsplit.csv
 outputs/              results.txt, tables (CSV) and figures (PNG) written by analysis.py
 screening/            how the dataset was chosen: 13 candidates, same checks for each
+ANALYSIS.md           full written analysis of the model: EMS, worked example, effects, assumptions, limits
 SCREENING.md          screening method, table and decision
 ```
