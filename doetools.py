@@ -121,8 +121,10 @@ def var_ratio(r, codes, k):
 
 
 def spearman_rows(A, B):
-    ra = stats.rankdata(A, axis=1)
-    rb = stats.rankdata(B, axis=1)
+    # round before ranking: integer yields give exact ties, and floating-point noise would otherwise
+    # break them differently from one machine to the next
+    ra = stats.rankdata(np.round(A, 9), axis=1)
+    rb = stats.rankdata(np.round(B, 9), axis=1)
     ra -= ra.mean(1, keepdims=True)
     rb -= rb.mean(1, keepdims=True)
     return (ra * rb).sum(1) / np.sqrt((ra**2).sum(1) * (rb**2).sum(1))

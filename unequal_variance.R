@@ -37,6 +37,20 @@ cat("by block (reference ", setdiff(levels(d$block), names(sd_block)), "):\n", s
 print(round(sd_block, 2))
 cat("by dust (reference ", setdiff(levels(d$dust), names(sd_dust)), "):\n", sep = "")
 print(round(sd_dust, 2))
+cat("\n==== Approximate 95% intervals for those SD ratios (1 = same variance as the reference) ====\n")
+cat("by block:\n")
+print(round(intervals(by_block, which = "var-cov")$varStruct, 2))
+cat("by dust:\n")
+print(round(intervals(by_dust, which = "var-cov")$varStruct, 2))
+cat("\n==== Variance components under the three variance models (Residual = reference level) ====\n")
+vc <- sapply(list(equal = equal, by_block = by_block, by_dust = by_dust), function(m) {
+  v <- VarCorr(m)
+  setNames(as.numeric(v[c(2, 4, 6, 7), "Variance"]), c("block", "whole plot", "subplot", "residual"))
+})
+print(round(vc, 2))
+cat("\nNote: the by-block SD ratios are imprecise (every interval contains 1), and the F tests treat the\n",
+    "estimated variances as known. Use the last table to see which conclusions do not depend on the\n",
+    "variance model, not to claim new effects.\n", sep = "")
 cat("\n==== Fixed-effect p-values under the three variance models ====\n")
 show <- tab
 show[, 4:7] <- round(show[, 4:7], 4)
