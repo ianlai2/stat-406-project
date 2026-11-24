@@ -78,12 +78,12 @@ largest relative difference between the two sets of F statistics: 0.01%
                   stratum                  assumption                                                             statistic     p verdict
     Subplot error (54 df)                   Normality                                                Shapiro-Wilk W = 0.987 0.591      ok
     Subplot error (54 df)              Equal variance  Brown-Forsythe over 7 groupings; worst: block (max/min variance 2.4) 0.235      ok
-    Subplot error (54 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.011 0.931      ok
+    Subplot error (54 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.012 0.919      ok
     Subplot error (54 df)                    Outliers                                 largest |studentized residual| = 2.61 0.495      ok
     Subplot error (54 df)                  Additivity                                                     Tukey one-df test 0.312      ok
 Sub-subplot error (60 df)                   Normality                                                Shapiro-Wilk W = 0.993 0.492      ok
 Sub-subplot error (60 df)              Equal variance Brown-Forsythe over 11 groupings; worst: block (max/min variance 3.9) 0.066      ok
-Sub-subplot error (60 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.016 0.885      ok
+Sub-subplot error (60 df)            Variance vs mean                                    Spearman(|resid|, fitted) = -0.009 0.936      ok
 Sub-subplot error (60 df)                    Outliers                                 largest |studentized residual| = 2.97 0.181      ok
 Sub-subplot error (60 df)                  Additivity                                                     Tukey one-df test 0.298      ok
 Sub-subplot error (60 df) Independence (field layout)            neighbouring-plot residual correlation statistic z = +0.24 0.813      ok
