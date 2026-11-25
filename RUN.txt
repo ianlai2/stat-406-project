@@ -1,0 +1,12 @@
+STAT 406 Team 14 | Run these commands from the extracted submission folder.
+Python 3 with pip; R with the recommended nlme package.
+
+python3 -m pip install -r requirements.txt
+python3 analysis.py
+Rscript crosscheck.R
+Rscript eda_and_reduced.R
+Rscript unequal_variance.R
+
+analysis.py imports doetools.py. The CSV is included under data/. Generated figures
+and tables are written under outputs/. The R model checks also print to the console.
+Data: Goulden (1939), Methods of Statistical Analysis, Table 39, via agridat.
